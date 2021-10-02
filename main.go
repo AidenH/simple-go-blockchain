@@ -10,9 +10,15 @@ func main() {
 
 	b1 := blockchain.NewChain()
 
+	// Create list of blocks for testing
 	for i := 0; i < 5; i++ {
-		b1.NewBlock(strconv.Itoa(i))
+		b1.NewBlock("body" + strconv.Itoa(i))
 	}
 
-	fmt.Println(b1)
+	// List blocks
+	fmt.Printf("BLOCKS:\n")
+
+	for b := range b1.ChainSlice {
+		fmt.Printf("%+v\n\n", b1.ChainSlice[b])
+	}
 }

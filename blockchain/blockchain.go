@@ -72,6 +72,7 @@ func findHash(bodyMessage string, prevHash [32]uint8) ([32]uint8, int) {
 	n := 0
 	newHash := sha256.Sum256([]byte(bodyMessage + strconv.Itoa(n)))
 
+	// Find hash of input bodyMessage and n nonce
 	for !bytes.Equal(newHash[0:2], []byte{0, 0}) {
 
 		if n > 0 {
