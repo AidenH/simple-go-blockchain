@@ -33,3 +33,25 @@ func (c *Chain) NewBlock(bodyMessage string) {
 
 	c.ChainSlice = append(c.ChainSlice, b)
 }
+
+func findHash(bodyMessage string, prevHash [32]uint8) ([32]uint8, int) {
+	n := 0
+	newHash := sha256.Sum256([]byte(bodyMessage + strconv.Itoa(n)))
+
+	for !bytes.Equal(newHash[0:2], []byte{0, 0}) {
+
+		if n > 0 {
+			if n % 10000 == 0 {
+				fmt.Printf("%v: %v\n", n, newHash[0:2])
+			}
+
+			newHash = sha256.Sum256([]byte(bodyMessage + strconv.Itoa(n)))
+		}
+
+		n++
+	}
+
+	fmt.Printf("Nonce found! n = %v\n%v\n\n", n, newHash)
+
+	return newHash, n
+}
