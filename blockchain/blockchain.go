@@ -1,5 +1,12 @@
 package blockchain
 
+import (
+	"bytes"
+	"crypto/sha256"
+	"fmt"
+	"strconv"
+)
+
 type Chain struct {
 	ChainSlice []Block
 }
@@ -8,8 +15,8 @@ type Block struct {
 	BlockNumber int
 	Nonce       int
 	Body        string
-	HashVal     string
-	PrevHashVal string
+	HashVal     [32]uint8
+	PrevHashVal [32]uint8
 }
 
 // Init a new chain - a slice of Block structs
@@ -23,12 +30,39 @@ func NewChain() Chain {
 // Init individual block struct
 func (c *Chain) NewBlock(bodyMessage string) {
 
-	b := Block{
-		BlockNumber: len(c.ChainSlice),
-		Nonce:       42,
-		Body:        bodyMessage,
-		HashVal:     "6a",
-		PrevHashVal: "5b",
+	chainLength := len(c.ChainSlice)
+
+	b := Block{}
+
+	// If new block is first block in chain
+	if len(c.ChainSlice) == 0 {
+
+		firstNonce := 42
+		firstHash := sha256.Sum256([]byte(bodyMessage+strconv.Itoa(firstNonce)))
+
+		b = Block{
+			BlockNumber: chainLength,
+			Nonce:       42,
+			Body:        bodyMessage,
+			HashVal:     firstHash,
+			PrevHashVal: firstHash,
+		}
+	} else {
+
+		// Get hash from previous block
+		prevHash := c.ChainSlice[chainLength-1].HashVal
+
+		// Find new hash and nonce
+		newHash, newNonce := findHash(bodyMessage, prevHash)
+
+		// Assemble new block with new hash and nonce
+		b = Block{
+			BlockNumber: chainLength,
+			Nonce:       newNonce,
+			Body:        bodyMessage,
+			HashVal:     newHash,
+			PrevHashVal: prevHash,
+		}
 	}
 
 	c.ChainSlice = append(c.ChainSlice, b)
