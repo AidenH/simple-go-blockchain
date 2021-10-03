@@ -27,7 +27,7 @@ func NewChain() Chain {
 	return c
 }
 
-// Init individual block struct
+// Create individual block
 func (c *Chain) NewBlock(bodyMessage string) {
 
 	chainLength := len(c.ChainSlice)
