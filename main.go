@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
+	"simple-go-blockchain/blockchain"
 	"strconv"
-	"very-simple-go-blockchain/blockchain"
 )
 
 func main() {

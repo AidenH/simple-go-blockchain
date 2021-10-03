@@ -70,6 +70,8 @@ func (c *Chain) NewBlock(bodyMessage string) {
 
 func findHash(bodyMessage string, prevHash [32]uint8) ([32]uint8, int) {
 	n := 0
+
+	// Init newHash so we don't find a signed hash at n = 0
 	newHash := sha256.Sum256([]byte(bodyMessage + strconv.Itoa(n)))
 
 	// Find hash of input string bodyMessage and n nonce

@@ -1,3 +1,3 @@
-module very-simple-go-blockchain
+module simple-go-blockchain
 
 go 1.17
