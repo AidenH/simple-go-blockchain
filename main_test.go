@@ -17,9 +17,15 @@ func TestNewChain(t *testing.T) {
 }
 
 func TestNewBlock(t *testing.T) {
-	fmt.Println()
+	testChain := blockchain.NewChain()
+	testChain.NewBlock("TestNewBlock")
+
+	// Test for ChainSlice for no blocks
+	if len(testChain.ChainSlice) == 0 {
+		t.Errorf("Error creating new block.\nChain: %v", testChain.ChainSlice)
+	}
 }
 
 func TestFindHash(t *testing.T) {
-	fmt.Println()
+	fmt.Sprintln()
 }
