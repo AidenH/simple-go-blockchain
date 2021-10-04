@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"simple-go-blockchain/blockchain"
 	"testing"
@@ -24,8 +25,10 @@ func TestNewBlock(t *testing.T) {
 	if len(testChain.ChainSlice) == 0 {
 		t.Errorf("Error creating new block.\nChain: %v", testChain.ChainSlice)
 	}
-}
 
-func TestFindHash(t *testing.T) {
-	fmt.Sprintln()
+	// Test that private findHash() is producing nonce and hash
+	if (testChain.ChainSlice[0].Nonce != 42 ||
+		!bytes.Equal(testChain.ChainSlice[0].HashVal[0:2], []byte{25, 89})) {
+		fmt.Println("no match")
+	}
 }
