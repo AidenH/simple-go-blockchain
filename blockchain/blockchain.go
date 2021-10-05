@@ -27,6 +27,15 @@ func NewChain() Chain {
 	return c
 }
 
+// Validate each block on the chain for signature
+func (c *Chain) ValidateChain() (string, int) {
+	
+	var result string
+	var blockLocation int
+
+	return result, blockLocation
+}
+
 // Create individual block
 func (c *Chain) NewBlock(bodyMessage string) {
 
