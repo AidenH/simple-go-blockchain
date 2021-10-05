@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"math/rand"
 	"simple-go-blockchain/blockchain"
 	"testing"
 )
@@ -36,4 +37,14 @@ func TestNewBlock(t *testing.T) {
 		t.Errorf("Nonce or HashVal mismatched/absent in block." +
 			"\nNonce: %v, Hash: %x", newNonce, testChain.ChainSlice[0].HashVal)
 	}
+}
+
+func TestValidateChain(t *testing.T) {
+	testChain := blockchain.NewChain()
+	
+	for i := 0; i < 10; i++ {
+		testChain.NewBlock(fmt.Sprintf("%v", rand.Intn(99999)))
+	}
+
+	fmt.Printf("%+v", testChain)
 }
