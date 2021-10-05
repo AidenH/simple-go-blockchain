@@ -37,15 +37,17 @@ func (c *Chain) NewBlock(bodyMessage string) {
 	// If new block is first block in chain
 	if len(c.ChainSlice) == 0 {
 
-		firstNonce := 42
-		firstHash := sha256.Sum256([]byte(bodyMessage+strconv.Itoa(firstNonce)))
+		//firstNonce := 42
+		//firstHash := sha256.Sum256([]byte(bodyMessage+strconv.Itoa(firstNonce)))
+		newHash, newNonce := findHash(bodyMessage, [32]uint8{})
 
+		// Assemble first block with duplicate hash and prev hash
 		b = Block{
 			BlockNumber: chainLength,
-			Nonce:       42,
+			Nonce:       newNonce,
 			Body:        bodyMessage,
-			HashVal:     firstHash,
-			PrevHashVal: firstHash,
+			HashVal:     newHash,
+			PrevHashVal: newHash,
 		}
 	} else {
 
