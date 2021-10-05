@@ -22,7 +22,7 @@ func TestNewBlock(t *testing.T) {
 	testChain.NewBlock("TestNewBlock")
 
 	newNonce := testChain.ChainSlice[0].Nonce
-	newHash := bytes.Equal(testChain.ChainSlice[0].HashVal[0:2], []byte{25, 89})
+	newHash := bytes.Equal(testChain.ChainSlice[0].HashVal[0:2], []byte{0, 0})
 
 	// Test for ChainSlice for no blocks
 	if len(testChain.ChainSlice) == 0 {
@@ -31,7 +31,7 @@ func TestNewBlock(t *testing.T) {
 	}
 
 	// Test that private findHash() is producing nonce and hash
-	if (newNonce != 42 ||
+	if (newNonce != 122361 ||
 		!newHash) {
 		t.Errorf("Nonce or HashVal mismatched/absent in block." +
 			"\nNonce: %v, Hash: %x", newNonce, testChain.ChainSlice[0].HashVal)
