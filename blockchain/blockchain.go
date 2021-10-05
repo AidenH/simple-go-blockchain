@@ -5,10 +5,12 @@ import (
 	"crypto/sha256"
 	"fmt"
 	"strconv"
+	"time"
 )
 
 type Chain struct {
 	ChainSlice []Block
+	Pool       []Transaction
 }
 
 type Block struct {
@@ -17,6 +19,13 @@ type Block struct {
 	Body        string
 	HashVal     [32]uint8
 	PrevHashVal [32]uint8
+}
+
+type Transaction struct {
+	Sender    string
+	Receiver  string
+	Amount    uint32
+	TimeStamp time.Time
 }
 
 var verbose bool = false
@@ -31,7 +40,7 @@ func NewChain() Chain {
 
 // Validate each block on the chain for signature
 func (c *Chain) ValidateChain() (int, error) {
-	
+
 	for blockNum := range c.ChainSlice {
 		thisHash := c.ChainSlice[blockNum].HashVal
 		thisprevHash := c.ChainSlice[blockNum].PrevHashVal
@@ -39,9 +48,9 @@ func (c *Chain) ValidateChain() (int, error) {
 		// Check first two bytes of Hash in block are signed
 		if !bytes.Equal(c.ChainSlice[blockNum].HashVal[0:2], []byte{0, 0}) {
 
-			err := fmt.Errorf("error: block's hash is not signed" +
+			err := fmt.Errorf("error: block's hash is not signed"+
 				"%x", thisHash)
-			
+
 			return blockNum, err
 		}
 
@@ -50,16 +59,22 @@ func (c *Chain) ValidateChain() (int, error) {
 			realprevHash := c.ChainSlice[blockNum-1].HashVal
 
 			if !bytes.Equal(realprevHash[:], thisprevHash[:]) {
-				err := fmt.Errorf("error: Previous hash mismatch." +
-					"This: %x" +
+				err := fmt.Errorf("error: Previous hash mismatch."+
+					"This: %x"+
 					"Last: %x", thisprevHash, realprevHash)
 
 				return blockNum, err
 			}
 		}
 	}
-	
+
 	return 0, nil
+}
+
+// For building transaction pool before going to hashed block
+func (c *Chain) AddToPool(t Transaction) error {
+
+	return nil
 }
 
 // Create individual block
