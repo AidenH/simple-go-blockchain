@@ -19,6 +19,8 @@ type Block struct {
 	PrevHashVal [32]uint8
 }
 
+var verbose bool = false
+
 // Init a new chain - a slice of Block structs
 func NewChain() Chain {
 
@@ -90,7 +92,10 @@ func findHash(bodyMessage string, prevHash [32]uint8) ([32]uint8, int) {
 
 		if n > 0 {
 			if n % 10000 == 0 {
-				fmt.Printf("%v: %v\n", n, newHash[0:2])
+				
+				if verbose {
+					fmt.Printf("%v: %v\n", n, newHash[0:2])
+				}
 			}
 
 			newHash = sha256.Sum256([]byte(bodyMessage + strconv.Itoa(n)))
@@ -99,7 +104,9 @@ func findHash(bodyMessage string, prevHash [32]uint8) ([32]uint8, int) {
 		n++
 	}
 
-	fmt.Printf("Nonce found! n = %v\n%x\n\n", n, newHash)
+	if verbose {
+		fmt.Printf("Nonce found! n = %v\n%x\n\n", n, newHash)
+	}
 
 	return newHash, n
 }
