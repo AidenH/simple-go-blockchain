@@ -32,8 +32,7 @@ func TestNewBlock(t *testing.T) {
 	}
 
 	// Test that private findHash() is producing nonce and hash
-	if (newNonce != 122361 ||
-		!newHash) {
+	if (newNonce != 122361 || !newHash) {
 		t.Errorf("Nonce or HashVal mismatched/absent in block." +
 			"\nNonce: %v, Hash: %x", newNonce, testChain.ChainSlice[0].HashVal)
 	}
@@ -42,9 +41,13 @@ func TestNewBlock(t *testing.T) {
 func TestValidateChain(t *testing.T) {
 	testChain := blockchain.NewChain()
 	
+	// Create ten test blocks on chain
 	for i := 0; i < 10; i++ {
 		testChain.NewBlock(fmt.Sprintf("%v", rand.Intn(99999)))
 	}
-
-	fmt.Printf("%+v", testChain)
+	
+	blockNum, err := testChain.ValidateChain()
+	if err != nil {
+		t.Errorf("%v, Block: %v", err, blockNum)
+	}
 }
