@@ -30,12 +30,36 @@ func NewChain() Chain {
 }
 
 // Validate each block on the chain for signature
-func (c *Chain) ValidateChain() (string, int) {
+func (c *Chain) ValidateChain() (int, error) {
 	
-	var result string
-	var blockLocation int
+	for blockNum := range c.ChainSlice {
+		thisHash := c.ChainSlice[blockNum].HashVal
+		thisprevHash := c.ChainSlice[blockNum].PrevHashVal
 
-	return result, blockLocation
+		// Check first two bytes of Hash in block are signed
+		if !bytes.Equal(c.ChainSlice[blockNum].HashVal[0:2], []byte{0, 0}) {
+
+			err := fmt.Errorf("error: block's hash is not signed" +
+				"%x", thisHash)
+			
+			return blockNum, err
+		}
+
+		// Check prevHash value is correct with prev block
+		if blockNum > 0 {
+			realprevHash := c.ChainSlice[blockNum-1].HashVal
+
+			if !bytes.Equal(realprevHash[:], thisprevHash[:]) {
+				err := fmt.Errorf("error: Previous hash mismatch." +
+					"This: %x" +
+					"Last: %x", thisprevHash, realprevHash)
+
+				return blockNum, err
+			}
+		}
+	}
+	
+	return 0, nil
 }
 
 // Create individual block
@@ -92,7 +116,7 @@ func findHash(bodyMessage string, prevHash [32]uint8) ([32]uint8, int) {
 
 		if n > 0 {
 			if n % 10000 == 0 {
-				
+
 				if verbose {
 					fmt.Printf("%v: %v\n", n, newHash[0:2])
 				}
