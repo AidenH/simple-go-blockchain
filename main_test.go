@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"simple-go-blockchain/blockchain"
 	"testing"
+	"time"
 )
 
 func TestNewChain(t *testing.T) {
@@ -49,5 +50,20 @@ func TestValidateChain(t *testing.T) {
 	blockNum, err := testChain.ValidateChain()
 	if err != nil {
 		t.Errorf("%v, Block: %v", err, blockNum)
+	}
+}
+
+func TestAddToPool (t *testing.T) {
+	testChain := blockchain.NewChain()
+
+	err := testChain.AddToPool(Transaction{
+		Sender: "Ralph",
+		Receiver: "Sarah",
+		Amount: 32,
+		Timestamp: time.Now(),
+	})
+
+	if err != nil {
+		t.Errorf("%v", err)
 	}
 }
