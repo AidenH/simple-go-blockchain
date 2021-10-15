@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"math/rand"
 	"simple-go-blockchain/blockchain"
 	"testing"
 	"time"
@@ -15,55 +14,73 @@ func TestNewChain(t *testing.T) {
 
 	// Check whether testChain instance is Chain struct
 	if varType != "blockchain.Chain" {
-		t.Errorf("Error initializing blockchain.Chain. Result = %T", varType)
+		t.Errorf("error initializing blockchain.Chain"+
+			"Result = %T", varType)
 	}
 }
 
 func TestNewBlock(t *testing.T) {
 	testChain := blockchain.NewChain()
-	testChain.NewBlock("TestNewBlock")
+	testChain.AddToPool(blockchain.Transaction{
+		Sender:   "Jocelyn",
+		Receiver: "Hal",
+		Amount:   230,
+	})
+	testChain.NewBlock()
 
 	newNonce := testChain.ChainSlice[0].Nonce
 	newHash := bytes.Equal(testChain.ChainSlice[0].HashVal[0:2], []byte{0, 0})
 
 	// Test for ChainSlice for no blocks
 	if len(testChain.ChainSlice) == 0 {
-		t.Errorf("Error creating new block." +
+		t.Errorf("error creating new block"+
 			"\nChain: %v", testChain.ChainSlice)
 	}
 
 	// Test that private findHash() is producing nonce and hash
-	if (newNonce != 122361 || !newHash) {
-		t.Errorf("Nonce or HashVal mismatched/absent in block." +
+	if newNonce != 7099 || !newHash {
+		t.Errorf("nonce or HashVal mismatched/absent in block"+
 			"\nNonce: %v, Hash: %x", newNonce, testChain.ChainSlice[0].HashVal)
 	}
 }
 
 func TestValidateChain(t *testing.T) {
 	testChain := blockchain.NewChain()
-	
+
 	// Create ten test blocks on chain
 	for i := 0; i < 10; i++ {
-		testChain.NewBlock(fmt.Sprintf("%v", rand.Intn(99999)))
+		testChain.AddToPool(blockchain.Transaction{
+			Sender:    "Richard",
+			Receiver:  "Linda",
+			Amount:    12,
+			Timestamp: time.Now(),
+		})
+		testChain.NewBlock()
 	}
-	
+
 	blockNum, err := testChain.ValidateChain()
 	if err != nil {
 		t.Errorf("%v, Block: %v", err, blockNum)
 	}
 }
 
-func TestAddToPool (t *testing.T) {
+func TestAddToPool(t *testing.T) {
 	testChain := blockchain.NewChain()
 
-	err := testChain.AddToPool(Transaction{
-		Sender: "Ralph",
-		Receiver: "Sarah",
-		Amount: 32,
+	transact := blockchain.Transaction{
+		Sender:    "Ralph",
+		Receiver:  "Sarah",
+		Amount:    32,
 		Timestamp: time.Now(),
-	})
+	}
 
+	err := testChain.AddToPool(transact)
 	if err != nil {
 		t.Errorf("%v", err)
+	}
+
+	// Read testChain.Pool afterwards and check the struct passe correctly
+	if testChain.Pool[0] != transact {
+		t.Errorf("error appending to pool - Transaction mismatch")
 	}
 }

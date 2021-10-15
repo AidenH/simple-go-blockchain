@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"fmt"
-	"strconv"
 	"time"
 )
 
@@ -16,7 +15,7 @@ type Chain struct {
 type Block struct {
 	BlockNumber int
 	Nonce       int
-	Body        string
+	Body        []Transaction
 	HashVal     [32]uint8
 	PrevHashVal [32]uint8
 }
@@ -25,7 +24,7 @@ type Transaction struct {
 	Sender    string
 	Receiver  string
 	Amount    uint32
-	TimeStamp time.Time
+	Timestamp time.Time
 }
 
 var verbose bool = false
@@ -33,7 +32,10 @@ var verbose bool = false
 // Init a new chain - a slice of Block structs
 func NewChain() Chain {
 
-	c := Chain{ChainSlice: []Block{}}
+	c := Chain{
+		ChainSlice: []Block{},
+		Pool: []Transaction{},
+	}
 
 	return c
 }
@@ -71,14 +73,21 @@ func (c *Chain) ValidateChain() (int, error) {
 	return 0, nil
 }
 
-// For building transaction pool before going to hashed block
+// Append to transaction pool before going to hashed block
 func (c *Chain) AddToPool(t Transaction) error {
+
+	if c == nil {
+		err := fmt.Errorf("input chain is nil")
+		return err
+	}
+
+	c.Pool = append(c.Pool, t)
 
 	return nil
 }
 
 // Create individual block
-func (c *Chain) NewBlock(bodyMessage string) {
+func (c *Chain) NewBlock() {
 
 	chainLength := len(c.ChainSlice)
 
@@ -89,13 +98,13 @@ func (c *Chain) NewBlock(bodyMessage string) {
 
 		//firstNonce := 42
 		//firstHash := sha256.Sum256([]byte(bodyMessage+strconv.Itoa(firstNonce)))
-		newHash, newNonce := findHash(bodyMessage, [32]uint8{})
+		newHash, newNonce := findHash(c.Pool, [32]uint8{})
 
 		// Assemble first block with duplicate hash and prev hash
 		b = Block{
 			BlockNumber: chainLength,
 			Nonce:       newNonce,
-			Body:        bodyMessage,
+			Body:        c.Pool,
 			HashVal:     newHash,
 			PrevHashVal: newHash,
 		}
@@ -105,39 +114,40 @@ func (c *Chain) NewBlock(bodyMessage string) {
 		prevHash := c.ChainSlice[chainLength-1].HashVal
 
 		// Find new hash and nonce
-		newHash, newNonce := findHash(bodyMessage, prevHash)
+		newHash, newNonce := findHash(c.Pool, prevHash)
 
 		// Assemble new block with new hash and nonce
 		b = Block{
 			BlockNumber: chainLength,
 			Nonce:       newNonce,
-			Body:        bodyMessage,
+			Body:        c.Pool,
 			HashVal:     newHash,
 			PrevHashVal: prevHash,
 		}
 	}
 
+	// Add block to chain
 	c.ChainSlice = append(c.ChainSlice, b)
+	// Clear transaction pool
+	c.Pool = nil
 }
 
-func findHash(bodyMessage string, prevHash [32]uint8) ([32]uint8, int) {
+func findHash(bodyMessage []Transaction, prevHash [32]uint8) ([32]uint8, int) {
 	n := 0
 
 	// Init newHash so we don't find a signed hash at n = 0
-	newHash := sha256.Sum256([]byte(bodyMessage + strconv.Itoa(n)))
+	newHash := sha256.Sum256([]byte(fmt.Sprintf("%v%v", bodyMessage, n)))
 
 	// Find hash of input string bodyMessage and n nonce
 	for !bytes.Equal(newHash[0:2], []byte{0, 0}) {
-
 		if n > 0 {
 			if n % 10000 == 0 {
-
 				if verbose {
 					fmt.Printf("%v: %v\n", n, newHash[0:2])
 				}
 			}
 
-			newHash = sha256.Sum256([]byte(bodyMessage + strconv.Itoa(n)))
+			newHash = sha256.Sum256([]byte(fmt.Sprintf("%v%v", bodyMessage, n)))
 		}
 
 		n++
